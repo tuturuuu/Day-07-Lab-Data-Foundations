@@ -98,10 +98,10 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 **Loại:** custom strategy (Late Chunking)
 
 **Mô tả cách hoạt động:**
-> Late Chunking giữ ngữ cảnh ở mức đoạn lớn trong bước indexing, sau đó mới cắt nhỏ ở giai đoạn retrieve theo câu hỏi. Cách này giúp vector đại diện ban đầu nắm được nhiều thông tin liên kết hơn, rồi vẫn trả về đoạn ngắn đủ chính xác khi cần. Với dữ liệu bệnh học, các mục như triệu chứng, biến chứng và điều trị thường liên quan chặt chẽ, nên giữ context lớn trước khi cắt giúp giảm mất ý. Khi query cụ thể, hệ thống mới "late split" để tăng độ bám sát câu hỏi.
+> Late Chunking duy trì ngữ cảnh rộng lớn trong giai đoạn indexing, trì hoãn quá trình chia nhỏ đến bước retrieve dựa trên query. Phương pháp này cho phép embedding ban đầu thu thập nhiều thông tin liên quan hơn, đồng thời vẫn cung cấp đoạn văn bản ngắn gọn khi cần. Trong lĩnh vực bệnh học, các phần như triệu chứng, biến chứng và phương pháp điều trị thường có mối liên hệ sâu sắc, vì vậy bảo tồn context lớn trước khi cắt giúp tránh mất mát thông tin quan trọng. Khi một câu hỏi cụ thể được đưa vào, hệ thống sẽ thực hiện "late split" để tăng độ tập trung vào nội dung liên quan.
 
 **Tại sao tôi chọn strategy này cho domain nhóm?**
-> Domain y khoa cần cân bằng giữa hai mục tiêu: đủ context để không sai nghĩa và đủ chi tiết để trả lời đúng câu hỏi cụ thể. Late Chunking phù hợp vì nó giữ coherence ở bước biểu diễn, nhưng vẫn cho phép cắt tinh hơn ở bước truy xuất. So với fixed-size hoặc recursive cố định ngay từ đầu, late chunking linh hoạt hơn theo từng loại query trong benchmark.
+> Lĩnh vực y khoa đòi hỏi cân bằng giữa hai nhu cầu: duy trì đủ ngữ cảnh để tránh hiểu sai và cung cấp chi tiết cụ thể để trả lời chính xác. Late Chunking thích hợp vì nó bảo vệ tính liên kết ở giai đoạn biểu diễn vector, nhưng vẫn cho phép tinh chỉnh ở giai đoạn tìm kiếm. Khác với fixed-size hay recursive chunking cố định từ đầu, late chunking thích ứng tốt hơn với các loại câu hỏi khác nhau trong bộ benchmark.
 
 **Code snippet (nếu custom):**
 ```python
@@ -129,10 +129,10 @@ class LateChunking:
 | 3 docs + 5 benchmark queries | **của tôi: Late Chunking (custom)** | base 600/100, late 180/40 | N/A (dynamic late split) | Top-1 acc = 0.40, Top-3 recall = 0.60 |
 
 **Kết quả chạy thực tế (mock embedding):**
-> Late Chunking không cải thiện Top-1 trong run này (giữ ở 0.40), nhưng tăng Top-3 recall từ 0.40 lên 0.60. Điều này cho thấy cắt muộn giúp tăng cơ hội xuất hiện tài liệu đúng trong top-k, đặc biệt với query cần nhiều ngữ cảnh.
+> Late Chunking tuy không nâng Top-1 accuracy (vẫn giữ ở 0.40), nhưng cải thiện Top-3 recall từ 0.40 lên 0.60. Điều này chứng tỏ rằng việc trì hoãn quá trình cắt nhỏ giúp tăng khả năng có tài liệu chính xác xuất hiện trong kết quả top-k, đặc biệt khi query đòi hỏi nhiều thông tin bối cảnh.
 
-**Strategy nào tốt nhất cho domain này? Tại sao?**
-> Với dataset hiện tại, Late Chunking cho tín hiệu tốt hơn ở mức recall (top-3) so với baseline fixed-size trong cùng điều kiện test. Cách giữ chunk lớn ở bước index giúp hạn chế mất ý nghĩa y khoa, còn bước cắt muộn cải thiện khả năng đưa đúng tài liệu vào top-k. Vì vậy strategy này phù hợp hơn khi benchmark có cả câu hỏi tổng quan và câu hỏi cụ thể.
+**Strategy nào tối ưu nhất cho domain này? Giải thích:**
+> Trong bối cảnh dataset hiện tại, Late Chunking cho hiệu suất tiềm năng cao hơn fixed-size chunking ở chỉ số recall level (top-3 results) dưới cùng điều kiện kiểm thử. Bằng cách duy trì các chunk lớn hơn trong pha indexing, hệ thống giảm thiểu rủi ro mất đi các chi tiết y tế quan trọng; đúc kì bước split tại thời điểm truy vấn tăng cường khả năng đưa đúng tài liệu vào phạm vi top-k. Do vậy, phương pháp này thích hợp hơn khi tập benchmark gồm mix giữa các query mức macro (tổng quan) và các query mức micro (chi tiết cụ thể).
 
 
 ---
