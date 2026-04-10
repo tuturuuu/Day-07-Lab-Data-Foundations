@@ -15,6 +15,8 @@ No math required — explain conceptually:
 
 > **Ghi kết quả vào:** Report — Section 1 (Warm-up)
 
+
+
 ---
 
 ### Exercise 1.2 — Chunking Math
@@ -36,17 +38,17 @@ Run `pytest tests/` to check progress.
 ### Checklist
 - [x] `Document` dataclass — ĐÃ IMPLEMENT SẴN
 - [x] `FixedSizeChunker` — ĐÃ IMPLEMENT SẴN
-- [ ] `SentenceChunker` — split on sentence boundaries, group into chunks
-- [ ] `RecursiveChunker` — try separators in order, recurse on oversized pieces
-- [ ] `compute_similarity` — cosine similarity formula with zero-magnitude guard
-- [ ] `ChunkingStrategyComparator` — call all three, compute stats
-- [ ] `EmbeddingStore.__init__` — initialize store (in-memory or ChromaDB)
-- [ ] `EmbeddingStore.add_documents` — embed and store each document
-- [ ] `EmbeddingStore.search` — embed query, rank by dot product
-- [ ] `EmbeddingStore.get_collection_size` — return count
-- [ ] `EmbeddingStore.search_with_filter` — filter by metadata, then search
-- [ ] `EmbeddingStore.delete_document` — remove all chunks for a doc_id
-- [ ] `KnowledgeBaseAgent.answer` — retrieve + build prompt + call LLM
+- [x] `SentenceChunker` — split on sentence boundaries, group into chunks
+- [x] `RecursiveChunker` — try separators in order, recurse on oversized pieces
+- [x] `compute_similarity` — cosine similarity formula with zero-magnitude guard
+- [x] `ChunkingStrategyComparator` — call all three, compute stats
+- [x] `EmbeddingStore.__init__` — initialize store (in-memory or ChromaDB)
+- [x] `EmbeddingStore.add_documents` — embed and store each document
+- [x] `EmbeddingStore.search` — embed query, rank by dot product
+- [x] `EmbeddingStore.get_collection_size` — return count
+- [x] `EmbeddingStore.search_with_filter` — filter by metadata, then search
+- [x] `EmbeddingStore.delete_document` — remove all chunks for a doc_id
+- [x] `KnowledgeBaseAgent.answer` — retrieve + build prompt + call LLM
 
 > **Nộp code:** `src/`
 > **Ghi approach vào:** Report — Section 4 (My Approach)
@@ -89,6 +91,21 @@ Ghi vào bảng:
 Mỗi thành viên **tự chọn strategy riêng** để thử trên cùng bộ tài liệu nhóm.
 
 **Step 1 — Baseline:** Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu. Ghi kết quả.
+
+Ví dụ chạy nhanh:
+
+```python
+from pathlib import Path
+
+from src.chunking import ChunkingStrategyComparator
+
+text = Path("data/chunking_strategies.md").read_text(encoding="utf-8")
+result = ChunkingStrategyComparator().compare(text, chunk_size=200)
+
+print(result["fixed_size"])
+print(result["by_sentences"])
+print(result["recursive"])
+```
 
 **Step 2 — Chọn hoặc thiết kế strategy của bạn:**
 - Dùng 1 trong 3 built-in strategies với tham số tối ưu, HOẶC
